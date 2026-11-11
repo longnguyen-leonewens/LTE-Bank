@@ -12,6 +12,7 @@ header.top{background:var(--black);color:var(--gold);padding:14px 20px;display:f
 header.top h1{margin:0;font-size:1.3rem;letter-spacing:.5px;flex:1;min-width:200px;text-transform:uppercase}
 header.top small{display:block;color:#fff;font-weight:400;font-size:.8rem;letter-spacing:0;text-transform:none}
 .badge{background:var(--gold);color:#000;font-weight:700;padding:4px 10px;border-radius:20px;font-size:.8rem}
+#saved{color:#fff;font-size:.8rem;min-width:70px}
 .btn{background:var(--gold);color:#000;border:0;border-radius:6px;padding:7px 12px;font-weight:600;cursor:pointer;font-size:.85rem}
 .btn.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
 .btn.sm{padding:4px 9px;font-size:.78rem}
@@ -36,7 +37,6 @@ textarea{resize:vertical;min-height:62px}
 .tb{position:relative}
 .tb .enl{position:absolute;right:4px;top:4px;opacity:.8}
 .tb textarea{padding-right:34px}
-/* galleries */
 .gal{border:1px dashed #999;border-radius:6px;padding:8px;background:#fafafa}
 .gal .gl{font-size:.82rem;font-weight:700;margin-bottom:6px}
 .gal .th{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
@@ -44,10 +44,8 @@ textarea{resize:vertical;min-height:62px}
 .gal .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .none{font-size:.78rem;color:#888}
 .galwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-/* view mode */
 body[data-mode=view] .editonly{display:none!important}
 body[data-mode=view] input[type=checkbox],body[data-mode=view] input[type=radio]{pointer-events:none}
-/* overlays */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;align-items:center;justify-content:center}
 .ov.on{display:flex}
 #slide img{max-width:84vw;max-height:84vh;object-fit:contain;border-radius:6px}
@@ -58,7 +56,6 @@ body[data-mode=view] input[type=checkbox],body[data-mode=view] input[type=radio]
 #enl .box{background:#fff;width:min(900px,94vw);height:min(80vh,700px);border-radius:8px;display:flex;flex-direction:column;overflow:hidden}
 #enl .hd{background:var(--black);color:var(--gold);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
 #enl textarea{flex:1;border:0;padding:14px;font-size:1.05rem;resize:none;border-radius:0;background:#fff}
-/* login */
 #login{position:fixed;inset:0;background:var(--black);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
 #login .box{background:#fff;border-top:5px solid var(--gold);border-radius:10px;padding:28px;width:min(380px,100%);text-align:center}
 #login h2{margin:0 0 4px;text-transform:uppercase}
@@ -82,10 +79,8 @@ footer b{color:var(--gold)}
 
 <header class="top">
   <h1>Form thu thập thông tin đầu vào<small>Online Coaching – Coach Vủ Hải Đăng</small></h1>
+  <span id="saved"></span>
   <span class="badge" id="modeBadge">VIEW</span>
-  <button class="btn ghost sm editonly" id="exp">Xuất dữ liệu</button>
-  <button class="btn ghost sm editonly" id="imp">Nhập dữ liệu</button>
-  <input type="file" id="impf" accept="application/json" hidden>
   <button class="btn sm" id="out">Thoát</button>
 </header>
 
@@ -284,7 +279,6 @@ footer b{color:var(--gold)}
 </main>
 <footer><b>LƯU Ý:</b> Hãy trả lời trung thực và chi tiết nhất có thể. Mọi thông tin được sử dụng để cá nhân hóa chương trình tập luyện và dinh dưỡng.<br>CẢM ƠN BẠN ĐÃ TIN TƯỞNG! · LET'S BUILD YOUR BEST VERSION.</footer>
 
-<!-- slideshow -->
 <div class="ov" id="slide">
   <div class="tools"><span id="cnt"></span>
     <button class="btn sm editonly" id="del" style="background:#c33;color:#fff">Xóa ảnh</button>
@@ -295,7 +289,6 @@ footer b{color:var(--gold)}
   <div class="cap" id="scap"></div>
 </div>
 
-<!-- enlarge textbox -->
 <div class="ov" id="enl">
   <div class="box">
     <div class="hd"><span id="etitle"></span><button class="btn sm" id="ex">✕ Đóng</button></div>
@@ -305,20 +298,31 @@ footer b{color:var(--gold)}
 
 <script>
 (() => {
-  const PASS = {"1234":"view","4321":"edit"};
   const $ = (s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
-  let mode = "view";
+  let mode = "view", token = sessionStorage.getItem("vhd-token") || "";
   let state = {f:{}, img:{}};
 
-  /* ---------- IndexedDB ---------- */
-  const dbp = new Promise((res,rej)=>{
-    const r = indexedDB.open("vhd-form",1);
-    r.onupgradeneeded = ()=>r.result.createObjectStore("kv");
-    r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error);
-  });
-  const dbGet = k => dbp.then(db=>new Promise(r=>{const q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}));
-  const dbSet = (k,v) => dbp.then(db=>new Promise(r=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=r;t.onerror=r}));
-  let timer; const save = () => { clearTimeout(timer); timer=setTimeout(()=>dbSet("state",state),250); };
+  /* ---------- server api ---------- */
+  const api = (p,o={}) => fetch(p,{...o,headers:{...(o.headers||{}),Authorization:"Bearer "+token}});
+  const imgUrl = id => `/api/img/${id}?t=${token}`;
+  async function loadState(){
+    const r = await api("/api/state");
+    if(!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    state = {f:d.f||{}, img:d.img||{}};
+    return d.role;
+  }
+  const setSaved = t => $("#saved").textContent = t;
+  let timer;
+  const save = () => {
+    setSaved("Đang lưu…"); clearTimeout(timer);
+    timer = setTimeout(async () => {
+      try{
+        const r = await api("/api/fields",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({f:state.f})});
+        setSaved(r.ok ? "Đã lưu ✓" : "Lỗi lưu");
+      }catch{ setSaved("Lỗi lưu"); }
+    },400);
+  };
 
   /* ---------- auth ---------- */
   function setMode(m){
@@ -327,17 +331,21 @@ footer b{color:var(--gold)}
     $$("#form input, #form textarea").forEach(el=>{
       if(el.type==="checkbox"||el.type==="radio") el.disabled = false; else el.readOnly = m!=="edit";
     });
-    renderAllGalleries();
+    loadFields(); renderAllGalleries();
     $("#login").style.display = "none";
   }
-  function tryLogin(){
-    const m = PASS[$("#pw").value.trim()];
-    if(!m){ $("#err").textContent = "Sai mật khẩu / Wrong password"; return; }
-    sessionStorage.setItem("vhd-mode", m); $("#err").textContent=""; setMode(m);
+  async function tryLogin(){
+    try{
+      const r = await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("#pw").value.trim()})});
+      const d = await r.json();
+      if(!r.ok){ $("#err").textContent = d.error || "Sai mật khẩu / Wrong password"; return; }
+      token = d.token; sessionStorage.setItem("vhd-token",token);
+      await loadState(); $("#err").textContent=""; setMode(d.role); $("#pw").value="";
+    }catch{ $("#err").textContent = "Lỗi kết nối / Connection error"; }
   }
   $("#go").onclick = tryLogin;
   $("#pw").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
-  $("#out").onclick = () => { sessionStorage.removeItem("vhd-mode"); location.reload(); };
+  $("#out").onclick = () => { sessionStorage.removeItem("vhd-token"); location.reload(); };
 
   /* ---------- field binding ---------- */
   function loadFields(){
@@ -389,7 +397,8 @@ footer b{color:var(--gold)}
         const c = document.createElement("canvas");
         c.width = Math.round(im.width*s); c.height = Math.round(im.height*s);
         c.getContext("2d").drawImage(im,0,0,c.width,c.height);
-        URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg",.85));
+        URL.revokeObjectURL(url);
+        c.toBlob(b => b ? res(b) : rej(), "image/jpeg", .85);
       };
       im.onerror = () => { URL.revokeObjectURL(url); rej(); };
       im.src = url;
@@ -401,7 +410,7 @@ footer b{color:var(--gold)}
     const l = document.createElement("div"); l.className="gl"; l.textContent=g.dataset.label; g.appendChild(l);
     if(list.length){
       const th = document.createElement("div"); th.className="th";
-      list.forEach((src,i)=>{ const im=document.createElement("img"); im.src=src; im.alt=""; im.onclick=()=>openSlide(id,i); th.appendChild(im); });
+      list.forEach((iid,i)=>{ const im=document.createElement("img"); im.src=imgUrl(iid); im.alt=""; im.loading="lazy"; im.onclick=()=>openSlide(id,i); th.appendChild(im); });
       g.appendChild(th);
     } else { const n=document.createElement("div"); n.className="none"; n.textContent="Chưa có ảnh"; g.appendChild(n); }
     const a = document.createElement("div"); a.className="acts";
@@ -414,8 +423,16 @@ footer b{color:var(--gold)}
     const fi = document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.multiple=true; fi.hidden=true;
     up.onclick=()=>fi.click();
     fi.onchange = async () => {
-      for(const f of fi.files){ try{ (state.img[id] ||= []).push(await compress(f)); }catch{} }
-      save(); renderGallery(g);
+      up.disabled = true; up.textContent = "Đang tải…";
+      for(const f of fi.files){
+        try{
+          const blob = await compress(f);
+          const r = await api("/api/img/"+id,{method:"POST",headers:{"Content-Type":"image/jpeg"},body:blob});
+          if(r.ok){ const d = await r.json(); (state.img[id] ||= []).push(d.id); }
+          else alert((await r.json().catch(()=>({}))).error || "Tải ảnh lỗi");
+        }catch{ alert("Tải ảnh lỗi"); }
+      }
+      renderGallery(g);
     };
     a.append(up,fi); g.appendChild(a);
   }
@@ -427,11 +444,10 @@ footer b{color:var(--gold)}
     const list = state.img[cur.id] || [];
     if(!list.length){ closeSlide(); return; }
     cur.i = (cur.i + list.length) % list.length;
-    $("#simg").src = list[cur.i];
+    $("#simg").src = imgUrl(list[cur.i]);
     $("#cnt").textContent = `${cur.i+1} / ${list.length}`;
     $("#scap").textContent = $(`.gal[data-g="${cur.id}"]`)?.dataset.label || "";
-    const multi = list.length>1;
-    $("#prev").style.display = $("#next").style.display = multi ? "" : "none";
+    $("#prev").style.display = $("#next").style.display = list.length>1 ? "" : "none";
   }
   function openSlide(id,i){ cur={id,i}; $("#slide").classList.add("on"); showSlide(); }
   function closeSlide(){ $("#slide").classList.remove("on"); const g=$(`.gal[data-g="${cur.id}"]`); if(g) renderGallery(g); }
@@ -439,9 +455,14 @@ footer b{color:var(--gold)}
   $("#next").onclick = ()=>{cur.i++;showSlide()};
   $("#sx").onclick = closeSlide;
   $("#slide").addEventListener("click",e=>{ if(e.target.id==="slide") closeSlide(); });
-  $("#del").onclick = () => {
+  $("#del").onclick = async () => {
     if(mode!=="edit" || !confirm("Xóa ảnh này?")) return;
-    state.img[cur.id].splice(cur.i,1); save(); if(cur.i>=state.img[cur.id].length) cur.i=0; showSlide();
+    const iid = state.img[cur.id][cur.i];
+    const r = await api(`/api/img/${cur.id}/${iid}`,{method:"DELETE"});
+    if(!r.ok) return;
+    state.img[cur.id].splice(cur.i,1);
+    if(cur.i>=state.img[cur.id].length) cur.i=0;
+    showSlide();
   };
   document.addEventListener("keydown",e=>{
     if($("#slide").classList.contains("on")){
@@ -449,30 +470,17 @@ footer b{color:var(--gold)}
     } else if(e.key==="Escape" && $("#enl").classList.contains("on")) closeEnl();
   });
 
-  /* ---------- export / import ---------- */
-  $("#exp").onclick = () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(state)],{type:"application/json"}));
-    a.download = "vhd-form-data.json"; a.click(); URL.revokeObjectURL(a.href);
-  };
-  $("#imp").onclick = () => $("#impf").click();
-  $("#impf").onchange = async e => {
-    const f = e.target.files[0]; if(!f) return;
-    try{
-      const d = JSON.parse(await f.text());
-      if(!d.f || !d.img) throw 0;
-      state = d; await dbSet("state",state); loadFields(); renderAllGalleries();
-    }catch{ alert("File không hợp lệ"); }
-    e.target.value = "";
-  };
-
-  /* ---------- init ---------- */
+  /* ---------- init + live refresh for viewers ---------- */
   (async () => {
-    state = (await dbGet("state")) || {f:{},img:{}};
-    loadFields(); renderAllGalleries();
-    const m = sessionStorage.getItem("vhd-mode");
-    if(m) setMode(m); else $("#pw").focus();
+    if(token){
+      try{ setMode(await loadState()); }catch{ sessionStorage.removeItem("vhd-token"); token=""; }
+    }
+    if(!token) $("#pw").focus();
   })();
+  setInterval(async () => {
+    if(mode!=="view" || !token || $("#slide").classList.contains("on") || $("#enl").classList.contains("on")) return;
+    try{ await loadState(); loadFields(); renderAllGalleries(); }catch{}
+  }, 10000);
 })();
 </script>
 </body>
