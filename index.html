@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form thu thập thông tin đầu vào - VHD Coaching</title>
+<style>
+:root{--gold:#f5b400;--black:#0d0d0d;--ink:#1a1a1a;--line:#bbb;--bg:#161616}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header.top{background:var(--black);color:var(--gold);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:50}
+header.top h1{margin:0;font-size:1.3rem;letter-spacing:.5px;flex:1;min-width:200px;text-transform:uppercase}
+header.top small{display:block;color:#fff;font-weight:400;font-size:.8rem;letter-spacing:0;text-transform:none}
+.badge{background:var(--gold);color:#000;font-weight:700;padding:4px 10px;border-radius:20px;font-size:.8rem}
+.btn{background:var(--gold);color:#000;border:0;border-radius:6px;padding:7px 12px;font-weight:600;cursor:pointer;font-size:.85rem}
+.btn.ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.btn.sm{padding:4px 9px;font-size:.78rem}
+.btn:hover{filter:brightness(1.1)}
+main{max-width:1200px;margin:0 auto;padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}
+section.card{background:#fff;border-radius:8px;overflow:hidden;border:1px solid #000}
+section.card.wide{grid-column:1/-1}
+section.card h2{margin:0;background:var(--black);color:#fff;font-size:1rem;padding:9px 12px;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+section.card h2 b{background:var(--gold);color:#000;width:26px;height:26px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+label.f{display:flex;flex-direction:column;font-size:.85rem;gap:3px;flex:1;min-width:130px;font-weight:600}
+.u{font-weight:400;color:#666;font-size:.78rem}
+input[type=text],input[type=number],textarea{width:100%;border:0;border-bottom:1.5px solid var(--line);padding:6px 4px;font:inherit;font-weight:400;background:#fafafa;border-radius:3px 3px 0 0}
+input:focus,textarea:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+textarea{resize:vertical;min-height:62px}
+.cb{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer}
+.cb input{accent-color:#000;width:16px;height:16px}
+.sub{font-size:.82rem;font-weight:700;margin-top:4px}
+.hint{font-size:.78rem;color:#666;margin:0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tb{position:relative}
+.tb .enl{position:absolute;right:4px;top:4px;opacity:.8}
+.tb textarea{padding-right:34px}
+/* galleries */
+.gal{border:1px dashed #999;border-radius:6px;padding:8px;background:#fafafa}
+.gal .gl{font-size:.82rem;font-weight:700;margin-bottom:6px}
+.gal .th{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.gal .th img{width:54px;height:54px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #888}
+.gal .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.none{font-size:.78rem;color:#888}
+.galwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+/* view mode */
+body[data-mode=view] .editonly{display:none!important}
+body[data-mode=view] input[type=checkbox],body[data-mode=view] input[type=radio]{pointer-events:none}
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;align-items:center;justify-content:center}
+.ov.on{display:flex}
+#slide img{max-width:84vw;max-height:84vh;object-fit:contain;border-radius:6px}
+.nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(245,180,0,.9);border:0;border-radius:50%;width:48px;height:48px;font-size:1.6rem;cursor:pointer;font-weight:700}
+.nav.l{left:14px}.nav.r{right:14px}
+#slide .tools{position:absolute;top:12px;right:14px;display:flex;gap:8px;align-items:center;color:#fff}
+#slide .cap{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:#fff;font-size:.9rem}
+#enl .box{background:#fff;width:min(900px,94vw);height:min(80vh,700px);border-radius:8px;display:flex;flex-direction:column;overflow:hidden}
+#enl .hd{background:var(--black);color:var(--gold);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+#enl textarea{flex:1;border:0;padding:14px;font-size:1.05rem;resize:none;border-radius:0;background:#fff}
+/* login */
+#login{position:fixed;inset:0;background:var(--black);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+#login .box{background:#fff;border-top:5px solid var(--gold);border-radius:10px;padding:28px;width:min(380px,100%);text-align:center}
+#login h2{margin:0 0 4px;text-transform:uppercase}
+#login input{text-align:center;font-size:1.3rem;letter-spacing:6px;margin:16px 0 10px;background:#f3f3f3}
+#err{color:#c00;min-height:1.2em;font-size:.85rem;margin:4px 0 10px}
+footer{color:#aaa;text-align:center;padding:14px 20px 40px;font-size:.82rem}
+footer b{color:var(--gold)}
+</style>
+</head>
+<body data-mode="view">
+
+<div id="login">
+  <div class="box">
+    <h2>VHD Coaching</h2>
+    <div style="color:#666;font-size:.9rem">Form thu thập thông tin đầu vào<br>Enter password</div>
+    <input type="password" id="pw" placeholder="••••" autocomplete="off" inputmode="numeric">
+    <div id="err"></div>
+    <button class="btn" id="go" style="width:100%;padding:11px">Vào / Enter</button>
+  </div>
+</div>
+
+<header class="top">
+  <h1>Form thu thập thông tin đầu vào<small>Online Coaching – Coach Vủ Hải Đăng</small></h1>
+  <span class="badge" id="modeBadge">VIEW</span>
+  <button class="btn ghost sm editonly" id="exp">Xuất dữ liệu</button>
+  <button class="btn ghost sm editonly" id="imp">Nhập dữ liệu</button>
+  <input type="file" id="impf" accept="application/json" hidden>
+  <button class="btn sm" id="out">Thoát</button>
+</header>
+
+<main id="form">
+
+<section class="card"><h2><b>1</b>Thông tin cơ bản</h2><div class="body">
+  <label class="f">Họ và tên<input type="text" data-k="name"></label>
+  <div class="row">
+    <label class="f" style="max-width:110px">Tuổi<input type="number" data-k="age"></label>
+    <div class="row"><span class="sub">Giới tính:</span>
+      <label class="cb"><input type="radio" name="gender" data-k="gender" value="Nam">Nam</label>
+      <label class="cb"><input type="radio" name="gender" data-k="gender" value="Nữ">Nữ</label></div>
+  </div>
+  <label class="f">Nghề nghiệp<input type="text" data-k="job"></label>
+  <div class="sub">Mục tiêu chính:</div>
+  <div class="row">
+    <label class="cb"><input type="checkbox" data-k="goal_fat">Giảm mỡ</label>
+    <label class="cb"><input type="checkbox" data-k="goal_muscle">Tăng cơ</label>
+    <label class="cb"><input type="checkbox" data-k="goal_recomp">Recomp</label>
+    <label class="cb"><input type="checkbox" data-k="goal_comp">Thi đấu</label>
+  </div>
+  <label class="f">Khác<input type="text" data-k="goal_other"></label>
+</div></section>
+
+<section class="card"><h2><b>2</b>Kinh nghiệm tập luyện</h2><div class="body">
+  <div class="sub">Bạn đã từng tập gym chưa?</div>
+  <div class="row">
+    <label class="cb"><input type="radio" name="gymexp" data-k="gymexp" value="Chưa">Chưa</label>
+    <label class="cb"><input type="radio" name="gymexp" data-k="gymexp" value="Đã từng">Đã từng</label></div>
+  <label class="f">Đã tập được bao lâu?<input type="text" data-k="gymlong"></label>
+  <div class="sub">Có từng thuê PT/Coach chưa?</div>
+  <div class="row">
+    <label class="cb"><input type="radio" name="pt" data-k="pt" value="Chưa">Chưa</label>
+    <label class="cb"><input type="radio" name="pt" data-k="pt" value="Rồi">Rồi</label></div>
+  <label class="f">Thành tích hoặc body tốt nhất từng đạt được<textarea class="big" data-k="best" data-t="Thành tích / body tốt nhất"></textarea></label>
+</div></section>
+
+<section class="card"><h2><b>3</b>Chỉ số cơ thể hiện tại</h2><div class="body">
+  <div class="row">
+    <label class="f">Chiều cao <span class="u">cm</span><input type="number" data-k="height"></label>
+    <label class="f">Cân nặng <span class="u">kg</span><input type="number" data-k="weight"></label></div>
+  <div class="row">
+    <label class="f">Body fat (ước lượng hoặc đo) <span class="u">%</span><input type="number" data-k="bf"></label>
+    <label class="f">Vòng eo (nếu có) <span class="u">cm</span><input type="number" data-k="waist"></label></div>
+  <label class="f">Cân nặng mong muốn <span class="u">kg</span><input type="number" data-k="goalweight"></label>
+</div></section>
+
+<section class="card wide"><h2><b>4</b>Chế độ ăn hiện tại</h2><div class="body">
+  <div class="sub">Ước lượng lượng ăn trong 7 ngày gần nhất</div>
+  <div class="grid3">
+    <div class="body" style="padding:0">
+      <div class="sub">Nếu biết macro:</div>
+      <label class="f">Protein <span class="u">g/ngày</span><input type="number" data-k="m_p"></label>
+      <label class="f">Carb <span class="u">g/ngày</span><input type="number" data-k="m_c"></label>
+      <label class="f">Fat <span class="u">g/ngày</span><input type="number" data-k="m_f"></label>
+      <label class="f">Calories <span class="u">kcal/ngày</span><input type="number" data-k="m_k"></label>
+    </div>
+    <div class="body" style="padding:0">
+      <div class="sub">Nếu không biết:</div>
+      <p class="hint">Hãy ghi chi tiết các bữa ăn trong 1 ngày điển hình (hoặc gửi ảnh các bữa ăn).</p>
+      <textarea class="big" style="min-height:150px" data-k="day_meal" data-t="Một ngày ăn điển hình"></textarea>
+      <div class="gal" data-g="meals" data-label="Ảnh các bữa ăn"></div>
+    </div>
+  </div>
+  <div class="sub">Thực phẩm bạn ăn thường xuyên</div>
+  <div class="grid3">
+    <label class="f">Nguồn Protein <span class="u">(ức gà, bò, cá, trứng, whey…)</span><textarea class="big" data-k="f_p" data-t="Nguồn Protein"></textarea></label>
+    <label class="f">Nguồn Carb <span class="u">(cơm, yến mạch, khoai, bánh mì…)</span><textarea class="big" data-k="f_c" data-t="Nguồn Carb"></textarea></label>
+    <label class="f">Nguồn Fat <span class="u">(bơ, hạt, dầu olive, bơ đậu phộng…)</span><textarea class="big" data-k="f_f" data-t="Nguồn Fat"></textarea></label>
+  </div>
+</div></section>
+
+<section class="card"><h2><b>5</b>Chương trình tập hiện tại</h2><div class="body">
+  <div class="sub">Nếu đang có giáo án:</div>
+  <p class="hint">Hãy gửi file hoặc ảnh giáo án.</p>
+  <div class="gal" data-g="program" data-label="Ảnh giáo án"></div>
+  <div class="sub">Nếu không có:</div>
+  <label class="f">Hiện tại bạn đang tập như thế nào?<textarea class="big" data-k="p_now" data-t="Hiện tại đang tập như thế nào?"></textarea></label>
+  <label class="f">Chia lịch tập ra sao?<textarea class="big" data-k="p_split" data-t="Chia lịch tập"></textarea></label>
+  <label class="f">Những bài tập chính đang thực hiện?<textarea class="big" data-k="p_ex" data-t="Những bài tập chính"></textarea></label>
+</div></section>
+
+<section class="card"><h2><b>6</b>Thời gian có thể tập</h2><div class="body">
+  <label class="f">Bạn có thể duy trì <span class="u">buổi/tuần</span><input type="number" data-k="sess"></label>
+  <label class="f">Mỗi buổi có thể dành <span class="u">phút (bao gồm cả cardio)</span><input type="number" data-k="mins"></label>
+</div></section>
+
+<section class="card"><h2><b>7</b>Thời điểm tập</h2><div class="body">
+  <div class="sub">Bạn thường tập vào:</div>
+  <div class="row">
+    <label class="cb"><input type="checkbox" data-k="t_sang">Sáng</label>
+    <label class="cb"><input type="checkbox" data-k="t_trua">Trưa</label>
+    <label class="cb"><input type="checkbox" data-k="t_chieu">Chiều</label>
+    <label class="cb"><input type="checkbox" data-k="t_toi">Tối</label></div>
+  <label class="f">Khung giờ cụ thể<input type="text" data-k="t_exact"></label>
+</div></section>
+
+<section class="card"><h2><b>8</b>Giấc ngủ</h2><div class="body">
+  <label class="f">Bạn ngủ trung bình <span class="u">giờ/đêm</span><input type="number" step="0.5" data-k="sleep"></label>
+  <div class="sub">Chất lượng giấc ngủ:</div>
+  <div class="row">
+    <label class="cb"><input type="radio" name="sq" data-k="sleepq" value="Rất tốt">Rất tốt</label>
+    <label class="cb"><input type="radio" name="sq" data-k="sleepq" value="Khá">Khá</label>
+    <label class="cb"><input type="radio" name="sq" data-k="sleepq" value="Trung bình">Trung bình</label>
+    <label class="cb"><input type="radio" name="sq" data-k="sleepq" value="Kém">Kém</label></div>
+</div></section>
+
+<section class="card wide"><h2><b>9</b>Phòng tập</h2><div class="body">
+  <p class="hint">Vui lòng gửi ảnh:</p>
+  <div class="galwrap">
+    <div class="gal" data-g="gym_all" data-label="Tổng thể phòng tập"></div>
+    <div class="gal" data-g="gym_machine" data-label="Máy tập chính"></div>
+    <div class="gal" data-g="gym_rack" data-label="Rack"></div>
+    <div class="gal" data-g="gym_db" data-label="Dumbbell"></div>
+    <div class="gal" data-g="gym_smith" data-label="Smith"></div>
+    <div class="gal" data-g="gym_cable" data-label="Cable"></div>
+    <div class="gal" data-g="gym_special" data-label="Các thiết bị đặc biệt (nếu có)"></div>
+  </div>
+</div></section>
+
+<section class="card"><h2><b>10</b>Chấn thương &amp; hạn chế</h2><div class="body">
+  <div class="sub">Bạn có đang gặp:</div>
+  <div class="row">
+    <label class="cb"><input type="checkbox" data-k="i_ct">Chấn thương</label>
+    <label class="cb"><input type="checkbox" data-k="i_joint">Đau khớp</label>
+    <label class="cb"><input type="checkbox" data-k="i_back">Đau lưng</label>
+    <label class="cb"><input type="checkbox" data-k="i_shoulder">Đau vai</label>
+    <label class="cb"><input type="checkbox" data-k="i_knee">Đau gối</label>
+    <label class="cb"><input type="checkbox" data-k="i_other">Hạn chế khác</label></div>
+  <div class="sub">Nếu có:</div>
+  <label class="f">Vị trí<input type="text" data-k="i_pos"></label>
+  <label class="f">Đau khi thực hiện động tác / bài tập nào?<textarea class="big" data-k="i_move" data-t="Đau khi thực hiện động tác nào?"></textarea></label>
+  <label class="f">Mức độ đau (1–10)<input type="number" min="1" max="10" data-k="i_lvl"></label>
+  <div class="sub">Đã điều trị chưa?</div>
+  <div class="row">
+    <label class="cb"><input type="radio" name="tr" data-k="i_treat" value="Chưa">Chưa</label>
+    <label class="cb"><input type="radio" name="tr" data-k="i_treat" value="Rồi">Rồi</label></div>
+  <label class="f">Phương pháp điều trị<input type="text" data-k="i_method"></label>
+</div></section>
+
+<section class="card"><h2><b>11</b>Những khó khăn hiện tại</h2><div class="body">
+  <div class="sub">Theo bạn, điều gì đang cản trở bạn đạt được body mong muốn?</div>
+  <div class="row" style="flex-direction:column;align-items:flex-start">
+    <label class="cb"><input type="checkbox" data-k="d_eat">Không ăn đủ</label>
+    <label class="cb"><input type="checkbox" data-k="d_work">Bận công việc</label>
+    <label class="cb"><input type="checkbox" data-k="d_form">Không biết tập đúng</label>
+    <label class="cb"><input type="checkbox" data-k="d_fat">Khó giảm mỡ</label>
+    <label class="cb"><input type="checkbox" data-k="d_sleep">Khó ngủ</label>
+    <label class="cb"><input type="checkbox" data-k="d_ctrl">Không kiểm soát được ăn uống</label>
+    <label class="cb"><input type="checkbox" data-k="d_time">Thiếu thời gian</label>
+    <label class="cb"><input type="checkbox" data-k="d_gain">Khó tăng cân</label>
+    <label class="cb"><input type="checkbox" data-k="d_motiv">Thiếu động lực</label>
+    <label class="cb"><input type="checkbox" data-k="d_stress">Stress</label>
+  </div>
+  <label class="f">Khác<textarea class="big" data-k="d_other" data-t="Khó khăn khác"></textarea></label>
+</div></section>
+
+<section class="card wide"><h2><b>12</b>Hình ảnh hiện tại</h2><div class="body">
+  <p class="hint">Điều kiện chụp: ánh sáng rõ · đứng thẳng · thả lỏng tự nhiên · mặc quần áo ôm sát hoặc đồ tập · không chỉnh sửa ảnh.</p>
+  <div class="galwrap">
+    <div class="gal" data-g="b_front" data-label="Chính diện"></div>
+    <div class="gal" data-g="b_back" data-label="Mặt sau"></div>
+    <div class="gal" data-g="b_left" data-label="Bên trái"></div>
+    <div class="gal" data-g="b_right" data-label="Bên phải"></div>
+  </div>
+</div></section>
+
+<section class="card wide"><h2><b>13</b>Thông tin bổ sung (khuyến khích)</h2><div class="body">
+  <div class="grid3">
+    <div class="body" style="padding:0">
+      <div class="sub">Công việc có phải ngồi nhiều không?</div>
+      <div class="row">
+        <label class="cb"><input type="radio" name="sit" data-k="sit" value="Có">Có</label>
+        <label class="cb"><input type="radio" name="sit" data-k="sit" value="Không">Không</label></div>
+      <label class="f">Trung bình đi bao nhiêu bước/ngày?<input type="number" data-k="steps"></label>
+      <label class="f">Có tập thêm môn thể thao nào khác không?<input type="text" data-k="sport"></label>
+    </div>
+    <div class="body" style="padding:0">
+      <div class="sub">Có đang sử dụng thực phẩm bổ sung? (Whey, Creatine, Omega-3…)</div>
+      <div class="row">
+        <label class="cb"><input type="radio" name="sup" data-k="sup" value="Có">Có</label>
+        <label class="cb"><input type="radio" name="sup" data-k="sup" value="Không">Không</label></div>
+      <label class="f">Nếu có, vui lòng liệt kê<textarea class="big" data-k="sup_list" data-t="Thực phẩm bổ sung"></textarea></label>
+    </div>
+    <div class="body" style="padding:0">
+      <div class="sub">Có đang dùng thuốc hoặc hormone/PED không?</div>
+      <p class="hint">Chỉ cần chia sẻ nếu bạn thấy phù hợp để việc lên kế hoạch chính xác và an toàn hơn.</p>
+      <div class="row">
+        <label class="cb"><input type="radio" name="ped" data-k="ped" value="Có">Có</label>
+        <label class="cb"><input type="radio" name="ped" data-k="ped" value="Không">Không</label></div>
+      <label class="f">Nếu có, vui lòng liệt kê<textarea class="big" data-k="ped_list" data-t="Thuốc / hormone / PED"></textarea></label>
+    </div>
+  </div>
+</div></section>
+
+</main>
+<footer><b>LƯU Ý:</b> Hãy trả lời trung thực và chi tiết nhất có thể. Mọi thông tin được sử dụng để cá nhân hóa chương trình tập luyện và dinh dưỡng.<br>CẢM ƠN BẠN ĐÃ TIN TƯỞNG! · LET'S BUILD YOUR BEST VERSION.</footer>
+
+<!-- slideshow -->
+<div class="ov" id="slide">
+  <div class="tools"><span id="cnt"></span>
+    <button class="btn sm editonly" id="del" style="background:#c33;color:#fff">Xóa ảnh</button>
+    <button class="btn sm" id="sx">✕ Đóng</button></div>
+  <button class="nav l" id="prev" aria-label="Trước">‹</button>
+  <img id="simg" alt="">
+  <button class="nav r" id="next" aria-label="Sau">›</button>
+  <div class="cap" id="scap"></div>
+</div>
+
+<!-- enlarge textbox -->
+<div class="ov" id="enl">
+  <div class="box">
+    <div class="hd"><span id="etitle"></span><button class="btn sm" id="ex">✕ Đóng</button></div>
+    <textarea id="etxt"></textarea>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PASS = {"1234":"view","4321":"edit"};
+  const $ = (s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  let mode = "view";
+  let state = {f:{}, img:{}};
+
+  /* ---------- IndexedDB ---------- */
+  const dbp = new Promise((res,rej)=>{
+    const r = indexedDB.open("vhd-form",1);
+    r.onupgradeneeded = ()=>r.result.createObjectStore("kv");
+    r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error);
+  });
+  const dbGet = k => dbp.then(db=>new Promise(r=>{const q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}));
+  const dbSet = (k,v) => dbp.then(db=>new Promise(r=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=r;t.onerror=r}));
+  let timer; const save = () => { clearTimeout(timer); timer=setTimeout(()=>dbSet("state",state),250); };
+
+  /* ---------- auth ---------- */
+  function setMode(m){
+    mode = m; document.body.dataset.mode = m;
+    $("#modeBadge").textContent = m==="edit" ? "EDIT" : "VIEW";
+    $$("#form input, #form textarea").forEach(el=>{
+      if(el.type==="checkbox"||el.type==="radio") el.disabled = false; else el.readOnly = m!=="edit";
+    });
+    renderAllGalleries();
+    $("#login").style.display = "none";
+  }
+  function tryLogin(){
+    const m = PASS[$("#pw").value.trim()];
+    if(!m){ $("#err").textContent = "Sai mật khẩu / Wrong password"; return; }
+    sessionStorage.setItem("vhd-mode", m); $("#err").textContent=""; setMode(m);
+  }
+  $("#go").onclick = tryLogin;
+  $("#pw").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
+  $("#out").onclick = () => { sessionStorage.removeItem("vhd-mode"); location.reload(); };
+
+  /* ---------- field binding ---------- */
+  function loadFields(){
+    $$("[data-k]").forEach(el=>{
+      const v = state.f[el.dataset.k];
+      if(el.type==="checkbox") el.checked = !!v;
+      else if(el.type==="radio") el.checked = (v===el.value);
+      else el.value = v ?? "";
+    });
+  }
+  $("#form").addEventListener("input", e=>{
+    const el = e.target; if(mode!=="edit" || !el.dataset.k) return;
+    if(el.type==="checkbox") state.f[el.dataset.k] = el.checked;
+    else if(el.type==="radio"){ if(el.checked) state.f[el.dataset.k] = el.value; }
+    else state.f[el.dataset.k] = el.value;
+    save();
+  });
+
+  /* ---------- enlarge textboxes ---------- */
+  let enlTarget = null;
+  $$("textarea.big").forEach(ta=>{
+    const w = document.createElement("div"); w.className="tb";
+    ta.parentNode.insertBefore(w,ta); w.appendChild(ta);
+    const b = document.createElement("button");
+    b.type="button"; b.className="btn sm enl"; b.title="Phóng to"; b.textContent="⤢";
+    b.onclick = () => {
+      enlTarget = ta;
+      $("#etitle").textContent = ta.dataset.t || "Nội dung";
+      const e = $("#etxt"); e.value = ta.value; e.readOnly = mode!=="edit";
+      $("#enl").classList.add("on"); e.focus();
+    };
+    w.appendChild(b);
+  });
+  $("#etxt").addEventListener("input",()=>{
+    if(mode!=="edit"||!enlTarget) return;
+    enlTarget.value = $("#etxt").value;
+    enlTarget.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+  const closeEnl = ()=>{ $("#enl").classList.remove("on"); enlTarget=null; };
+  $("#ex").onclick = closeEnl;
+  $("#enl").addEventListener("click",e=>{ if(e.target.id==="enl") closeEnl(); });
+
+  /* ---------- image galleries ---------- */
+  function compress(file, max=1600){
+    return new Promise((res,rej)=>{
+      const url = URL.createObjectURL(file), im = new Image();
+      im.onload = () => {
+        const s = Math.min(1, max/Math.max(im.width, im.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(im.width*s); c.height = Math.round(im.height*s);
+        c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+        URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg",.85));
+      };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(); };
+      im.src = url;
+    });
+  }
+  function renderGallery(g){
+    const id = g.dataset.g, list = state.img[id] || [];
+    g.innerHTML = "";
+    const l = document.createElement("div"); l.className="gl"; l.textContent=g.dataset.label; g.appendChild(l);
+    if(list.length){
+      const th = document.createElement("div"); th.className="th";
+      list.forEach((src,i)=>{ const im=document.createElement("img"); im.src=src; im.alt=""; im.onclick=()=>openSlide(id,i); th.appendChild(im); });
+      g.appendChild(th);
+    } else { const n=document.createElement("div"); n.className="none"; n.textContent="Chưa có ảnh"; g.appendChild(n); }
+    const a = document.createElement("div"); a.className="acts";
+    if(list.length){
+      const v = document.createElement("button"); v.type="button"; v.className="btn sm"; v.textContent=`Xem ảnh (${list.length})`;
+      v.onclick=()=>openSlide(id,0); a.appendChild(v);
+    }
+    const up = document.createElement("button"); up.type="button"; up.className="btn ghost sm editonly"; up.style.color="#000"; up.style.borderColor="#000";
+    up.textContent="+ Tải ảnh lên";
+    const fi = document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.multiple=true; fi.hidden=true;
+    up.onclick=()=>fi.click();
+    fi.onchange = async () => {
+      for(const f of fi.files){ try{ (state.img[id] ||= []).push(await compress(f)); }catch{} }
+      save(); renderGallery(g);
+    };
+    a.append(up,fi); g.appendChild(a);
+  }
+  const renderAllGalleries = () => $$(".gal").forEach(renderGallery);
+
+  /* ---------- slideshow ---------- */
+  let cur = {id:null,i:0};
+  function showSlide(){
+    const list = state.img[cur.id] || [];
+    if(!list.length){ closeSlide(); return; }
+    cur.i = (cur.i + list.length) % list.length;
+    $("#simg").src = list[cur.i];
+    $("#cnt").textContent = `${cur.i+1} / ${list.length}`;
+    $("#scap").textContent = $(`.gal[data-g="${cur.id}"]`)?.dataset.label || "";
+    const multi = list.length>1;
+    $("#prev").style.display = $("#next").style.display = multi ? "" : "none";
+  }
+  function openSlide(id,i){ cur={id,i}; $("#slide").classList.add("on"); showSlide(); }
+  function closeSlide(){ $("#slide").classList.remove("on"); const g=$(`.gal[data-g="${cur.id}"]`); if(g) renderGallery(g); }
+  $("#prev").onclick = ()=>{cur.i--;showSlide()};
+  $("#next").onclick = ()=>{cur.i++;showSlide()};
+  $("#sx").onclick = closeSlide;
+  $("#slide").addEventListener("click",e=>{ if(e.target.id==="slide") closeSlide(); });
+  $("#del").onclick = () => {
+    if(mode!=="edit" || !confirm("Xóa ảnh này?")) return;
+    state.img[cur.id].splice(cur.i,1); save(); if(cur.i>=state.img[cur.id].length) cur.i=0; showSlide();
+  };
+  document.addEventListener("keydown",e=>{
+    if($("#slide").classList.contains("on")){
+      if(e.key==="ArrowLeft"){cur.i--;showSlide()} else if(e.key==="ArrowRight"){cur.i++;showSlide()} else if(e.key==="Escape") closeSlide();
+    } else if(e.key==="Escape" && $("#enl").classList.contains("on")) closeEnl();
+  });
+
+  /* ---------- export / import ---------- */
+  $("#exp").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(state)],{type:"application/json"}));
+    a.download = "vhd-form-data.json"; a.click(); URL.revokeObjectURL(a.href);
+  };
+  $("#imp").onclick = () => $("#impf").click();
+  $("#impf").onchange = async e => {
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const d = JSON.parse(await f.text());
+      if(!d.f || !d.img) throw 0;
+      state = d; await dbSet("state",state); loadFields(); renderAllGalleries();
+    }catch{ alert("File không hợp lệ"); }
+    e.target.value = "";
+  };
+
+  /* ---------- init ---------- */
+  (async () => {
+    state = (await dbGet("state")) || {f:{},img:{}};
+    loadFields(); renderAllGalleries();
+    const m = sessionStorage.getItem("vhd-mode");
+    if(m) setMode(m); else $("#pw").focus();
+  })();
+})();
+</script>
+</body>
+</html>
